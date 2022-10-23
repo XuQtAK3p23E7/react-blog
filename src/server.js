@@ -44,17 +44,24 @@ app.put('/api/articles/:name/upvote',async (req,res)=>{
     }
 });
 
-app.post('/api/articles/:name/comments',(req,res)=>{
+app.post('/api/articles/:name/comments',async (req,res)=>{
     const {name} = req.params;
     const {postedBy, text } = req.body;
-    
-    const article = articlesInfo.find(a => a.name === name);
+    // connects to Mongo driver
+    const client = new MongoClient('mongodb://127.0.0.1:27017');
+    await client.connect();
+    // connects to Mongo database
+    const db = client.db('react-blog-db');
+    await db.collection('articles').updateOne({name}, { 
+        $push: {comments:{postedBy,text}},
+
+    });
+    const article = await db.collection('articles').findOne({name});    
 
     if (article) {
-        article.comments.push({postedBy,text});
         res.send(article.comments);
     } else {
-        res.send("Bro That article no exist");
+        res.send("Articles collection does not contain that req name");
     }
 
 })
