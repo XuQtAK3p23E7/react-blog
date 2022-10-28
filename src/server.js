@@ -28,10 +28,13 @@ app.use(async (req,res,next) =>{
 
 app.get('/api/articles/:name', async (req,res) =>{
     const {name} = req.params;
+    const {uid} = req.user;
 
     const article = await db.collection('articles').findOne({name});
 
     if (article) {
+        const upvoteIds = article.upvoteIds || [];
+        article.canUpvote = uid && !upvoteIds.include(uid);
         res.json(article);
     } else {
         res.sendStatus(404);
