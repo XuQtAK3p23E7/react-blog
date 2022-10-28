@@ -1,8 +1,30 @@
+import fs from 'fs';
+import admin from 'firebase-admin';
 import express from 'express';
 import {db, connectToDb} from './db.js';
 
+const credentials = JSON.parse(
+    fs.readFileSync('../credentials.json')
+);
+admin.initializeApp({
+    credential: admin.credential.cert(credentials),
+});
+
 const app = express();
 app.use(express.json());
+
+app.use(async (req,res,next) =>{
+    const {authtoken} = req.headers;
+    
+    if (authtoken){
+        try {
+            req.user = await admin.auth().verifyIdToken(auth);
+        } catch (e) {
+            res.sendStatus(400);
+        }
+    }
+    next();
+});
 
 app.get('/api/articles/:name', async (req,res) =>{
     const {name} = req.params;
@@ -55,17 +77,6 @@ connectToDb(()=>{
         console.log("SERVER IS LISTENING ON PORT 8888");
     })
 })
-
-
-
-
-
-
-
-
-
-
-
 
 
 
