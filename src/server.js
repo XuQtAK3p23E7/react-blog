@@ -5,22 +5,19 @@ const app = express();
 app.use(express.json());
 
 app.get('/api/articles/:name', async (req,res) =>{
-    const {name} =req.params;
+    const {name} = req.params;
 
     const article = await db.collection('articles').findOne({name});
 
     if (article) {
         res.json(article);
     } else {
-        res.sendStatus(404).send();
-    }
-
-    res.json(article);
-                
+        res.sendStatus(404);
+    }                
 });
 
 app.put('/api/articles/:name/upvote',async (req,res)=>{
-    const {name } =req.params;
+    const {name } = req.params;
     
     await db.collection('articles').updateOne({name},{
         $inc:{ upvotes: 1},
