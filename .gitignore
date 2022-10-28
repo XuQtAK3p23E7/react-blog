@@ -1,3 +1,5 @@
+credentials.json
+mongo-db-data
 node_modules/
 .cache/
 dist/
