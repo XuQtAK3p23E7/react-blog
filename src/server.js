@@ -3,6 +3,10 @@ import admin from 'firebase-admin';
 import express from 'express';
 import {db, connectToDb} from './db.js';
 
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const credentials = JSON.parse(
     fs.readFileSync('./credentials.json')
 );
@@ -12,6 +16,11 @@ admin.initializeApp({
 
 const app = express();
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "../build")));
+
+app.get(/^(?!\/api).+/,(req,res)=>{
+    res.sendFile(path.join(__dirname, '../build/index.html'));
+})
 
 app.use(async (req,res,next) =>{
     const {authtoken} = req.headers;
@@ -92,10 +101,12 @@ app.post('/api/articles/:name/comments',async (req,res)=>{
 
 })
 
+const PORT = process.env.PORT || 8888;
+
 connectToDb(()=>{
     console.log("SUCCESS CONNECT TO DATABASE");
-    app.listen(8888,()=>{
-        console.log("SERVER IS LISTENING ON PORT 8888");
+    app.listen(PORT,()=>{
+        console.log("SERVER IS LISTENING ON PORT =>" + PORT);
     })
 })
 
